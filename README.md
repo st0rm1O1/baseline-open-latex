@@ -50,6 +50,7 @@ npm run e2e:compile  # default document compiles and a PDF canvas renders ink
 npm run e2e:resume   # fontspec/resume fixture compiles via the on-demand endpoint
 npm run e2e:persistence  # autosave survives a full reload (IndexedDB round-trip)
 npm run e2e:download # a downloaded PDF saves non-empty bytes, not a 0-byte file
+npm run e2e:projects # project delete: confirm flow, fallback, reload + empty state
 ```
 
 ## Deployment

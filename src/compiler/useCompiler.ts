@@ -19,6 +19,8 @@ export interface UseCompilerResult {
   compileProject: (project: LatexProject) => Promise<CompileResult | null>
   cancel: (() => void) | null
   download: (projectName: string) => void
+  /** Clears the compiled PDF and result, e.g. when its project is deleted. */
+  reset: () => void
 }
 
 const STATUS_TEXT: Record<CompilerStateName, string> = {
@@ -115,6 +117,13 @@ export function useCompiler(makeProject: () => LatexProject): UseCompilerResult 
     [pdfBytes],
   )
 
+  const reset = useCallback(() => {
+    setPdfBytes(null)
+    setLastResult(null)
+    setCompileRevision((previous) => previous + 1)
+    setState('idle')
+  }, [])
+
   useEffect(() => {
     const service = getService()
     void service.initialize().then(
@@ -141,5 +150,6 @@ export function useCompiler(makeProject: () => LatexProject): UseCompilerResult 
     compileProject,
     cancel: state === 'compiling' ? cancel : null,
     download,
+    reset,
   }
 }

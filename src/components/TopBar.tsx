@@ -9,6 +9,8 @@ export interface TopBarProps {
   activeProjectId?: string
   onSelectProject?: (id: string) => void
   onNewProject?: () => void
+  onDeleteProject?: () => void
+  deleteDisabled?: boolean
   compileDisabled: boolean
   downloadDisabled: boolean
   onCompile: () => void
@@ -21,6 +23,8 @@ export function TopBar({
   activeProjectId,
   onSelectProject,
   onNewProject,
+  onDeleteProject,
+  deleteDisabled,
   compileDisabled,
   downloadDisabled,
   onCompile,
@@ -59,6 +63,15 @@ export function TopBar({
           title="Create a new document"
         >
           New
+        </button>
+        <button
+          type="button"
+          className="button"
+          onClick={onDeleteProject}
+          disabled={deleteDisabled}
+          title="Delete this project"
+        >
+          Delete
         </button>
         <button
           type="button"

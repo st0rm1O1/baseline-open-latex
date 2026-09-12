@@ -28,6 +28,8 @@ function Workspace() {
   const [projects, setProjects] = useState<ProjectDocument[]>([])
   const editorRef = useRef<CodeMirrorEditorHandle | null>(null)
   const latestProjectRef = useRef<ProjectDocument | null>(null)
+  // Projects removed this session must never be resurrected by a stale save.
+  const deletedIdsRef = useRef<Set<string>>(new Set())
 
   const makeProject = useCallback((): LatexProject => {
     const active = activeProject ?? latestProjectRef.current
@@ -49,20 +51,21 @@ function Workspace() {
 
   const saveActiveProject = useCallback(async (): Promise<void> => {
     const latest = latestProjectRef.current
-    if (!latest) return
+    // A stale snapshot for a project that was deleted this session must never
+    // be written back to the repository (autosave race on delete).
+    if (!latest || deletedIdsRef.current.has(latest.id)) return
     await repositoryRef.current.save(latest)
   }, [])
 
   // Debounced autosave: idempotent, saves whatever the latest snapshot is.
-  const autosave = useDebouncedCallback(() => {
+  const { invoke: autosave, cancel: cancelAutosave } = useDebouncedCallback(() => {
     void saveActiveProject().then(() => {
       const latest = latestProjectRef.current
-      if (latest) {
-        setProjects((previous) => {
-          const next = previous.filter((project) => project.id !== latest.id)
-          return [{ ...latest }, ...next]
-        })
-      }
+      if (!latest || deletedIdsRef.current.has(latest.id)) return
+      setProjects((previous) => {
+        const next = previous.filter((project) => project.id !== latest.id)
+        return [{ ...latest }, ...next]
+      })
     })
   }, AUTOSAVE_DELAY_MS)
 
@@ -155,6 +158,34 @@ function Workspace() {
     latestProjectRef.current = fresh
   }, [saveActiveProject])
 
+  const handleDeleteProject = useCallback((): void => {
+    const target = activeProject
+    if (!target) return
+    if (!window.confirm(`Delete "${target.name}"? This cannot be undone.`)) return
+
+    // Clear any pending autosave and mark the id as deleted so an in-flight
+    // save can't write it back or re-insert it into the list later.
+    cancelAutosave()
+    deletedIdsRef.current.add(target.id)
+    latestProjectRef.current = null
+
+    const remaining = projects.filter((candidate) => candidate.id !== target.id)
+    setProjects(remaining)
+    void repositoryRef.current.delete(target.id)
+
+    // The deleted project's PDF must vanish from the preview and download.
+    compiler.reset()
+    const fallback = remaining[0] ?? null
+    if (fallback) {
+      setActiveProject(fallback)
+      setDocumentSource(fallback.source)
+      latestProjectRef.current = { ...fallback, updatedAt: Date.now() }
+    } else {
+      setActiveProject(null)
+      setDocumentSource('')
+    }
+  }, [activeProject, projects, cancelAutosave, compiler])
+
   // Mirror the editor theme onto the surrounding chrome.
   useEffect(() => {
     document.documentElement.dataset.theme = settings.theme
@@ -183,7 +214,11 @@ function Workspace() {
   }
 
   const compileDisabled =
-    compiler.status.state === 'initializing' || compiler.status.state === 'compiling'
+    !activeProject || compiler.status.state === 'initializing' || compiler.status.state === 'compiling'
+  const deleteDisabled =
+    !activeProject ||
+    compiler.status.state === 'initializing' ||
+    compiler.status.state === 'compiling'
   const projectName = activeProject?.name ?? 'Untitled Project'
   const projectOptions = projects.map((project) => ({ id: project.id, name: project.name }))
 
@@ -194,6 +229,8 @@ function Workspace() {
       activeProjectId={activeProject?.id}
       onSelectProject={handleSelectProject}
       onNewProject={handleNewProject}
+      onDeleteProject={handleDeleteProject}
+      deleteDisabled={deleteDisabled}
       compileDisabled={compileDisabled}
       downloadDisabled={!compiler.pdfBytes}
       onCompile={handleCompile}

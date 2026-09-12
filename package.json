@@ -15,7 +15,8 @@
     "e2e:compile": "node scripts/e2e-compile-gate.mjs",
     "e2e:resume": "node scripts/e2e-resume-gate.mjs",
     "e2e:persistence": "node scripts/e2e-persistence-gate.mjs",
-    "e2e:download": "node scripts/e2e-download-gate.mjs"
+    "e2e:download": "node scripts/e2e-download-gate.mjs",
+    "e2e:projects": "node scripts/e2e-projects-gate.mjs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
