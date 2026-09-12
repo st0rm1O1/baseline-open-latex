@@ -1,0 +1,60 @@
+:root {
+  --bg: #f5f6f8;
+  --bg-panel: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: #eef0f3;
+  --bg-canvas: #eceef1;
+  --text: #1c1e21;
+  --text-muted: #5c6370;
+  --border: #d5d9df;
+  --accent: #2f5daa;
+  --accent-contrast: #ffffff;
+  --danger: #b42318;
+  --shadow-page: 0 1px 4px rgba(0, 0, 0, 0.18);
+  --code-font: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --ui-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg: #17191d;
+  --bg-panel: #1e2126;
+  --bg-elevated: #23262c;
+  --bg-hover: #2a2e35;
+  --bg-canvas: #101215;
+  --text: #e6e8eb;
+  --text-muted: #9aa2ad;
+  --border: #33373f;
+  --accent: #5b8ce0;
+  --accent-contrast: #101216;
+  --danger: #f28b82;
+  --shadow-page: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--ui-font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

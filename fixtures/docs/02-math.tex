@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm}
+\newtheorem{theorem}{Theorem}
+\begin{document}
+\begin{theorem}[Fundamental Theorem of Calculus]
+If $f$ is continuous on $[a,b]$, then
+\[
+  \int_a^b f(x)\,dx = F(b) - F(a)
+\]
+where $F$ is any antiderivative of $f$.
+\end{theorem}
+\begin{proof}
+Let $F(x) = \int_a^x f(t)\,dt$. By the mean value theorem
+\begin{align*}
+  F'(x) &= \lim_{h \to 0} \frac{1}{h}\int_x^{x+h} f(t)\,dt \\
+        &= f(x).
+\end{align*}
+\end{proof}
+\end{document}

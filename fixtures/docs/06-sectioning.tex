@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+\titleformat{\section}{\Large\bfseries}{}{0pt}{}[\titlerule]
+\setlist[itemize]{topsep=2pt,itemsep=1pt,parsep=0pt,leftmargin=1.2em}
+
+\begin{document}
+\section{Section heading, formatted}
+\begin{itemize}
+\item First item with tight spacing.
+\item Second item.
+\item Third item.
+\end{itemize}
+Custom section formatting (titlesec) and compact itemize
+spacing (enumitem) both live outside the texlive-basic tier.
+\end{document}
