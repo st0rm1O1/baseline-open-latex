@@ -6,7 +6,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
 /** Opens a PDF from raw bytes, resolving to the document proxy. */
 export function openPdfDocument(bytes: Uint8Array): Promise<PDFDocumentProxy> {
-  return pdfjs.getDocument({ data: bytes }).promise
+  // pdf.js transfers the passed buffer to its worker, detaching it. Copy so
+  // the caller's bytes (e.g. the compiler's pdfBytes used for downloading)
+  // remain intact after the preview has rendered.
+  return pdfjs.getDocument({ data: bytes.slice() }).promise
 }
 
 export type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
